@@ -360,7 +360,49 @@ getPlayP1:
    push rbp
    mov  rbp, rsp
 	
-   
+   push eax
+   push esi
+   push ebx
+
+      mov DWORD[rowScreen], 9
+      mov eax, DWORD[tries]
+      sub eax, 5
+      mul eax, 2
+      add DWORD[rowScreen], eax
+      mov DWORD[colScreen], 8
+
+      mov ebx, 0
+
+      bucle4:
+      cmp ebx, 5
+      jg final4
+      mov BYTE[vPlay+ebx], ' ' 
+      inc ebx
+      jmp bucle4
+      
+      final4:
+      mov esi, 0
+
+      dec BYTE[tries]
+
+      call getchP1
+      
+      call gotoxyP1
+      mov eax, 0
+      bucle5:
+      cmp eax, 5
+      jge final5
+      cmp BYTE[tecla], '0'
+      jl bucle5
+      cmp BYTE[tecla], '9'
+      jg bucle5
+      mov al, BYTE[tecla]
+      mov BYTE[playP1+eax] , al
+      mov BYTE[charac], al
+      call printchP1
+      add DWORD[colScreen], 2
+      call gotoxyP1
+
    mov rsp, rbp
    pop rbp
    ret
