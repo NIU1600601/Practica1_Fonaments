@@ -321,7 +321,23 @@ getSecretP1:
 printSecretP1:
    push rbp
    mov  rbp, rsp
-	
+   
+			mov DWORD[rowScreen], 3
+			mov DWORD[colScreen], 22
+   
+			call gotoxyP1
+			
+			mov esi, 0
+	bucle3: cmp esi, 5
+			jge final3
+			mov al, vSecret[esi]
+			mov BYTE[charac], al
+			call printchP1
+			mov BYTE[charac], " "
+			call printchP1
+			inc esi	
+			jmp bucle3
+	final3:	
    
 
    mov rsp, rbp
