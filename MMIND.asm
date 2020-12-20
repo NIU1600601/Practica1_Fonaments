@@ -264,23 +264,26 @@ getSecretP1:
    push rbp
    mov  rbp, rsp
    
+   push rsi
+   push rbx
+   
 			mov DWORD[rowScreen], 3
 			mov DWORD[colScreen], 22
 			
-			call gotoxyP1
 
-			mov EBX,0 ;Comparació bucle2
+
 			cmp DWORD[state],0
 			jne bucle2 ;Si state no és 0, no inicialitzar vSecret
-			mov EAX,0
-   bucle: 	cmp EAX,5 ;Bucle: Inicialitza vSecret amb espais blancs
-			jge bucle2
-			mov BYTE[vSecret+EAX],' '
-			inc EAX
+			mov esi,0
+   bucle: 	cmp esi,5 ;Bucle: Inicialitza vSecret amb espais blancs
+			jge seguent
+			mov BYTE[vSecret+esi],' '
+			inc esi
 			jmp bucle
 
-   
-   bucle2:  cmp EBX, 5 ;Bucle2: Guarda el codi secret i posa asteriscs
+   seguent:	mov esi, 0
+   bucle2:  call gotoxyP1
+			cmp esi, 5 ;Bucle2: Guarda el codi secret i posa asteriscs
 			jge final2
 			call getchP1
 			cmp BYTE[tecla],'0' ;comparem amb el 0
@@ -288,19 +291,21 @@ getSecretP1:
 			cmp BYTE[tecla],'9' ;comparem amb el 9
 			jg bucle2
 			mov bl, BYTE[tecla] 
-			mov BYTE[vSecret+EBX], bl ;posem el número introduït per teclat a vSecret
-			inc EBX ;incrementem ebx
+			mov BYTE[vSecret+esi], bl ;posem el número introduït per teclat a vSecret
+			inc esi ;incrementem ebx
 			mov BYTE[charac],'*'
 			
 			call printchP1
 			
 			add DWORD[colScreen],2 ;movem el cursor dues posicions
-			call gotoxyP1
 			jmp bucle2
 
    final2:
    
-   	
+   mov DWORD[state],1
+   
+   pop rbx
+   pop rsi
 		
    mov rsp, rbp
    pop rbp
@@ -376,49 +381,50 @@ getPlayP1:
    push rbp
    mov  rbp, rsp
 	
-   push eax
-   push esi
-   push ebx
+   push rax
+   push rsi
+   push rbx
 
-      mov DWORD[rowScreen], 9
-      mov eax, DWORD[tries]
-      sub eax, 5
-      mul eax, 2
-      add DWORD[rowScreen], eax
-      mov DWORD[colScreen], 8
+				mov DWORD[rowScreen], 9
+				mov eax, DWORD[tries]
+				sub eax, 5
+				;mul eax, 2
+				add DWORD[rowScreen], eax
+				mov DWORD[colScreen], 8
 
-      mov ebx, 0
+				mov ebx, 0
 
       bucle4:
-      cmp ebx, 5
-      jg final4
-      mov BYTE[vPlay+ebx], ' ' 
-      inc ebx
-      jmp bucle4
+				cmp ebx, 5
+				jg final4
+				mov BYTE[vPlay+ebx], ' ' 
+				inc ebx
+				jmp bucle4
       
-      final4:
-      mov esi, 0
+	  final4:
+				mov esi, 0
 
-      dec BYTE[tries]
+				dec BYTE[tries]
 
-      call getchP1
+				call getchP1
       
-      call gotoxyP1
-      mov eax, 0
-      bucle5:
-      cmp eax, 5
-      jge final5
-      cmp BYTE[tecla], '0'
-      jl bucle5
-      cmp BYTE[tecla], '9'
-      jg bucle5
-      mov al, BYTE[tecla]
-      mov BYTE[playP1+eax] , al
-      mov BYTE[charac], al
-      call printchP1
-      add DWORD[colScreen], 2
-      call gotoxyP1
-
+				call gotoxyP1
+				mov eax, 0
+	  bucle5:
+				cmp eax, 5
+				jge final5
+				cmp BYTE[tecla], '0'
+				jl bucle5
+				cmp BYTE[tecla], '9'
+				jg bucle5
+				mov al, BYTE[tecla]
+				mov BYTE[playP1+eax] , al
+				mov BYTE[charac], al
+				call printchP1
+				add DWORD[colScreen], 2
+				call gotoxyP1
+	final5:
+	
    mov rsp, rbp
    pop rbp
    ret
