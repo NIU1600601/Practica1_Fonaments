@@ -380,51 +380,48 @@ printSecretP1:
 getPlayP1:
    push rbp
    mov  rbp, rsp
-	
-   push rax
-   push rsi
-   push rbx
+   
 
-				mov DWORD[rowScreen], 9
-				mov eax, DWORD[tries]
-				sub eax, 5
-				;mul eax, 2
-				add DWORD[rowScreen], eax
+				mov eax, 5 ;Guardem dimVector
+				sub eax, DWORD[tries] ;Restem els intents
+				mov ebx, eax
+				add eax, ebx ;Multiplica (5 - tries) per 2
+				add eax, 9 ;El resultat anterior + 9
+				mov DWORD[rowScreen], eax
 				mov DWORD[colScreen], 8
 
-				mov ebx, 0
-
-      bucle4:
-				cmp ebx, 5
-				jg final4
-				mov BYTE[vPlay+ebx], ' ' 
-				inc ebx
-				jmp bucle4
-      
-	  final4:
 				mov esi, 0
 
-				dec BYTE[tries]
+	  bucle4:	cmp esi, 5 ;Bucle4: Inicialitza el vector vPlay amb espais en blanc
+				jg final4
+				mov BYTE[vPlay+ebx], ' ' 
+				inc esi
+				jmp bucle4    
+	  final4:
+	  
+				mov esi, 0
 
-				call getchP1
+				;dec BYTE[tries] ;Decrementem el nombre d'intents
+				
+				call gotoxyP1 ;Situem el cursor al lloc corresponent
       
-				call gotoxyP1
-				mov eax, 0
-	  bucle5:
-				cmp eax, 5
+	  bucle5:	cmp esi, 5 ;Bucle5: 
 				jge final5
-				cmp BYTE[tecla], '0'
+				call getchP1 ;Llegim tecla
+				cmp BYTE[tecla], '0' ;Mirem que sigui més gran que 0
 				jl bucle5
-				cmp BYTE[tecla], '9'
+				cmp BYTE[tecla], '9' ;Mirem que sigui més petit que 9
 				jg bucle5
-				mov al, BYTE[tecla]
-				mov BYTE[playP1+eax] , al
+				mov al, BYTE[tecla] 
+				mov BYTE[vPlay+esi] , al ;Posa el nombre introduit al vector vPlay
 				mov BYTE[charac], al
-				call printchP1
-				add DWORD[colScreen], 2
+				call printchP1 ;Mostra el nombre introduit per pantalla
+				add DWORD[colScreen], 2 ;Mou el cursor dues posicions
 				call gotoxyP1
-	final5:
-	
+				inc esi
+				jmp bucle5
+	  final5:
+	  
    mov rsp, rbp
    pop rbp
    ret
@@ -450,7 +447,36 @@ getPlayP1:
 checkHitsP1:
    push rbp
    mov  rbp, rsp
+   
+				mov DWORD[colScreen], 22
+				mov eax, 5 ;Guardem dimVector
+				sub eax, DWORD[tries] ;Restem els intents
+				mov ebx, eax
+				add eax, ebx ;Multiplica (5 - tries) per 2
+				add eax, 9 ;El resultat anterior + 9
+				mov DWORD[rowScreen], eax
+				
+				
+				mov ebx, 0 ;hitsX  -  Atenció! No utilitzar bl
+				mov esi, 0
+	bucle6:		cmp esi, 5 ;Bucle6: Compara els vectors vSecret i vPlay
+				jge final6
+				call gotoxyP1 ;Situar el cursor al lloc corresponent
+				mov al, BYTE[vPlay + esi] ;Mou el contingut del vector a al
+				cmp al, BYTE[vSecret + esi] ;Compara el contingut del vector vSecret amb el del vPlay
+				jne incorrecte
+				inc ebx ;Incrementem els encerts
+				mov BYTE[charac], "x"
+				call printchP1 ;Escriu x a la posició que s'ha encertat
+				cmp ebx, 5
+				je guanyat ;Si s'ha encertat moure's a guanyat
+	incorrecte:	add DWORD[colScreen], 2 
+				inc esi
+				jmp bucle6
+	guanyat:	mov DWORD[state],5
 	
+	final6:
+				
     
 
    mov rsp, rbp
